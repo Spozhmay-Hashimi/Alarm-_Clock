@@ -56,5 +56,6 @@ function checkState(state) {
     alarmTime = "";
     ringtone.pause();
     alramState = "noset";
+    setAlarmBtn.innerHTML = "Set Alarm";
   }
 }
