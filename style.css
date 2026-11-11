@@ -5,59 +5,121 @@
 }
 
 body {
-  height: 100vh;
+  min-height: 100vh;
+  padding: 24px;
   background: #9a99e9;
-}
-
-body,
-.container,
-.content {
   display: flex;
   justify-content: center;
   align-items: center;
+  font-family: Arial, Helvetica, sans-serif;
 }
+
 .container {
+  display: flex;
   flex-direction: column;
-  width: 450px;
-  background: #fff;
-  border-radius: 10px;
+  align-items: center;
+  width: min(450px, 100%);
   padding: 30px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 35px rgb(40 35 100 / 18%);
 }
+
+.clock-image {
+  display: block;
+  width: 130px;
+  height: auto;
+  object-fit: contain;
+}
+
 .container h1 {
-  font-size: 40px;
-  margin: 30px 0;
+  margin: 22px 0 28px;
+  font-size: clamp(34px, 8vw, 42px);
+  font-weight: 600;
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
 }
 
-.container .content {
-  width: 100%;
+.content {
+  display: flex;
   justify-content: space-between;
-}
-.container .content.disable {
-  opacity: 0.5;
-  pointer-events: none;
-}
-.content .controls {
-  border: 1px solid #999;
-  width: calc(100% / 2 - 5px);
-  border-radius: 5px;
-  padding: 5px 10px;
+  gap: 10px;
+  width: 100%;
 }
 
-.content .controls select {
-  outline: 0;
-  border: 0;
+.controls {
+  width: 50%;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #999;
+  border-radius: 6px;
+}
+
+.controls select {
   width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
   font-size: 16px;
+  cursor: pointer;
+}
+
+.controls select:disabled {
+  cursor: not-allowed;
+}
+
+.status {
+  width: 100%;
+  min-height: 20px;
+  margin-top: 12px;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .container button {
   width: 100%;
-  outline: 0;
+  margin-top: 12px;
+  padding: 14px 12px;
   border: 0;
+  border-radius: 6px;
+  outline: 0;
   background: #8382d6;
   color: #fff;
-  padding: 15px 0;
-  margin-top: 20px;
-  border-radius: 5px;
-  font-size: 20px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+
+.container button:hover {
+  background: #6f6ec5;
+}
+
+.container button:focus-visible,
+.controls select:focus-visible {
+  outline: 3px solid #45449b;
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 420px) {
+  body {
+    padding: 16px;
+  }
+
+  .container {
+    padding: 24px 20px;
+  }
 }

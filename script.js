@@ -1,61 +1,108 @@
-const selectMenu = document.querySelectorAll("select");
+const hourSelect = document.querySelector("#hour");
+const minuteSelect = document.querySelector("#minute");
 const timeBox = document.querySelector(".time");
 const setAlarmBtn = document.querySelector("button");
-const content = document.querySelector(".content");
-let alarmTime,
-  alramState = "noset";
+const statusBox = document.querySelector(".status");
+
 const ringtone = new Audio("Martin-Czerny-Dreaming-of-Us.mp3");
-// console.log(selectMenu);
-for (let i = 23; i >= 0; i--) {
-  i = i < 10 ? "0" + i : i;
-  let option = `<option value="${i}">${i}</option>`;
-  selectMenu[0].firstElementChild.insertAdjacentHTML("afterend", option);
-  console.log(option);
-}
+ringtone.preload = "auto";
 
-for (let i = 59; i >= 0; i--) {
-  i = i < 10 ? "0" + i : i;
-  let option = `<option value="${i}">${i}</option>`;
-  selectMenu[1].firstElementChild.insertAdjacentHTML("afterend", option);
-  console.log(option);
-}
+let alarmTimestamp = null;
+let alarmIsSet = false;
+let alarmHasRung = false;
 
-setInterval(() => {
-  let date = new Date();
-  let h = date.getHours();
-  let m = date.getMinutes();
-  let s = date.getSeconds();
+function addOptions(select, count) {
+  const options = document.createDocumentFragment();
 
-  h = h < 10 ? "0" + h : h;
-  m = m < 10 ? "0" + m : m;
-  s = s < 10 ? "0" + s : s;
-
-  timeBox.innerHTML = `${h}:${m}:${s}`;
-  if (alarmTime == `${h}:${m}`) {
-    ringtone.play();
-    ringtone.loop = true;
+  for (let value = 0; value < count; value += 1) {
+    const formattedValue = String(value).padStart(2, "0");
+    options.append(new Option(formattedValue, formattedValue));
   }
-}, 1000);
+
+  select.append(options);
+}
+
+addOptions(hourSelect, 24);
+addOptions(minuteSelect, 60);
+
+function updateClock() {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+
+  timeBox.textContent = `${hours}:${minutes}:${seconds}`;
+
+  // Compare timestamps so the alarm still rings if the browser delays a timer tick.
+  if (alarmIsSet && !alarmHasRung && now.getTime() >= alarmTimestamp) {
+    alarmHasRung = true;
+    statusBox.textContent = "Alarm is ringing. Press Clear Alarm to stop it.";
+
+    const playAttempt = ringtone.play();
+    if (playAttempt && typeof playAttempt.catch === "function") {
+      playAttempt.catch(() => {
+        statusBox.textContent =
+          "The alarm time has arrived, but the browser blocked audio playback. Check your sound settings.";
+      });
+    }
+  }
+}
+
+function stopRingtone() {
+  ringtone.pause();
+  ringtone.currentTime = 0;
+  ringtone.loop = false;
+}
+
+function clearAlarm() {
+  alarmTimestamp = null;
+  alarmIsSet = false;
+  alarmHasRung = false;
+
+  stopRingtone();
+  hourSelect.disabled = false;
+  minuteSelect.disabled = false;
+  hourSelect.value = "";
+  minuteSelect.value = "";
+
+  setAlarmBtn.textContent = "Set Alarm";
+  setAlarmBtn.setAttribute("aria-pressed", "false");
+  statusBox.textContent = "";
+}
 
 setAlarmBtn.addEventListener("click", () => {
-  alarmTime = `${selectMenu[0].value}:${selectMenu[1].value}`;
-  //   console.log(alarmTime);
-  if (alarmTime.includes("Hour") || alarmTime.includes("Minute")) {
-    return alert("زمان هشدار را به درستی مشخص کنید");
+  if (alarmIsSet) {
+    clearAlarm();
+    return;
   }
-  checkState(alramState);
+
+  if (!hourSelect.value || !minuteSelect.value) {
+    statusBox.textContent = "لطفاً ساعت و دقیقهٔ هشدار را انتخاب کنید.";
+    return;
+  }
+
+  const hours = Number(hourSelect.value);
+  const minutes = Number(minuteSelect.value);
+  const now = new Date();
+  const alarmDate = new Date(now);
+  alarmDate.setHours(hours, minutes, 0, 0);
+
+  // If today's selected time has already passed, schedule it for tomorrow.
+  if (alarmDate.getTime() <= now.getTime()) {
+    alarmDate.setDate(alarmDate.getDate() + 1);
+  }
+
+  alarmTimestamp = alarmDate.getTime();
+  alarmIsSet = true;
+  alarmHasRung = false;
+  ringtone.loop = true;
+
+  hourSelect.disabled = true;
+  minuteSelect.disabled = true;
+  setAlarmBtn.textContent = "Clear Alarm";
+  setAlarmBtn.setAttribute("aria-pressed", "true");
+  statusBox.textContent = `Alarm set for ${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}.`;
 });
 
-function checkState(state) {
-  if (state == "noset") {
-    content.classList.add("disable");
-    setAlarmBtn.innerHTML = "clear Alarm";
-    alramState = "set";
-  } else {
-    content.classList.remove("disable");
-    alarmTime = "";
-    ringtone.pause();
-    alramState = "noset";
-    setAlarmBtn.innerHTML = "Set Alarm";
-  }
-}
+updateClock();
+setInterval(updateClock, 1000);

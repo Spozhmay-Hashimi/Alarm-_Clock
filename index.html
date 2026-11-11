@@ -3,28 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#9a99e9" />
     <title>Alarm Clock</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="container">
-      <img src="Alarm_Clock.JPG" alt="Clock" />
-      <h1 class="time">23:40:50</h1>
+    <main class="container">
+      <img class="clock-image" src="Alarm_Clock.png" alt="Alarm clock illustration" />
+      <h1 class="time" aria-label="Current time">00:00:00</h1>
 
-      <div class="content disable">
+      <div class="content">
         <div class="controls">
-          <select>
-            <option value="Hour" selected hidden>Hour</option>
+          <label class="visually-hidden" for="hour">Hour</label>
+          <select id="hour" aria-label="Choose alarm hour">
+            <option value="" selected disabled hidden>Hour</option>
           </select>
         </div>
         <div class="controls">
-          <select>
-            <option value="Minute" selected hidden>Minute</option>
+          <label class="visually-hidden" for="minute">Minute</label>
+          <select id="minute" aria-label="Choose alarm minute">
+            <option value="" selected disabled hidden>Minute</option>
           </select>
         </div>
       </div>
-      <button>Set Alarm</button>
-    </div>
+
+      <p class="status" role="status" aria-live="polite"></p>
+      <button type="button" aria-pressed="false">Set Alarm</button>
+    </main>
     <script src="script.js"></script>
   </body>
 </html>
